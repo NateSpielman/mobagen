@@ -12,11 +12,13 @@ Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Bo
   if (!neighborhood.empty()) {
     Vector2f position = boid->transform.position;
     int countCloseFlockmates = 0;
+    float closestDistance = desiredMinimalDistance;
   //    // todo: find and apply force only on the closest mates
     for (int i = 0; i < neighborhood.size(); i++) {
       Boid* neighbor = neighborhood[i];
       Vector2f neighborPosition = neighbor->transform.position;
       float distance = Vector2f::Distance(position, neighborPosition);
+      if(closestDistance > distance) { closestDistance = distance; }
       if(distance < desiredDistance) {
         //Apply the inverse proportion of the distance between to the repulsive force
         Vector2f repulsiveForce = -(Vector2f::normalized(neighborPosition - position)/weight);
@@ -24,11 +26,10 @@ Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Bo
         countCloseFlockmates++;
       }
     }
+    //use numbers between zero and one
+    //divide by distance related to the radius
+    separatingForce = Vector2f::normalized(separatingForce) / (closestDistance/desiredDistance);
   }
-
-  //Clamp the maximum magnitude
-
-  separatingForce = Vector2f::normalized(separatingForce);
 
   return separatingForce;
 }

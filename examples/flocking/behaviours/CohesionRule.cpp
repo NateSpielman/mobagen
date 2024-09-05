@@ -8,8 +8,8 @@ Vector2f CohesionRule::computeForce(const std::vector<Boid*>& neighborhood, Boid
   // hint: iterate over the neighborhood
   if (!neighborhood.empty()) {
     Vector2f position = boid->transform.position;
-    Vector2f centerOfMass;
-    float countFlockmates = 0;
+    Vector2f centerOfMass = position;
+    float countFlockmates = 1;
     for (int i = 0; i < neighborhood.size(); i++) {
       Boid* neighbor = neighborhood[i];
       Vector2f neighborPosition = neighbor->transform.position;
