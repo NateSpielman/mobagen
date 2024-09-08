@@ -8,7 +8,7 @@ Vector2f AlignmentRule::computeForce(const std::vector<Boid*>& neighborhood, Boi
   // todo: add your code here to align each boid in a neighborhood
   // hint: iterate over the neighborhood
   if (!neighborhood.empty()) {
-    Vector2f position = boid->transform.position;
+    //Add all the neighbors velocity together then divide by the number of neighbors to get the average
     float countFlockmates = 0;
     for (int i = 0; i < neighborhood.size(); i++) {
       Boid* neighbor = neighborhood[i];

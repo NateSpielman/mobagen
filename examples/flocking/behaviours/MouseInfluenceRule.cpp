@@ -10,11 +10,11 @@ Vector2f MouseInfluenceRule::computeForce(const std::vector<Boid*>& neighborhood
           Vector2f mousePos(io.MousePos.x, io.MousePos.y); // todo: use this
           Vector2f boidPos = boid->transform.position;
 
-          Vector2f displacement = mousePos - boidPos; // todo: change this
-          float distance = mousePos.Distance(boidPos); // todo: change this
+          Vector2f displacement = mousePos - boidPos;
+          float distance = mousePos.Distance(boidPos);
 
           //The force is inversely proportional to distance
-          Vector2f force = Vector2f::normalized(displacement) * distance; // todo: change this
+          Vector2f force = Vector2f::normalized(displacement) * distance;
 
           if (isRepulsive)
               force *= -1.f;
