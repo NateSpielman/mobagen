@@ -9,7 +9,7 @@ private:
   float desiredMinimalDistance = 10;
 
 public:
-  explicit SeparationRule(World* pWorld, float desiredSeparation = 20., float weight = 1., bool isEnabled = true)
+  explicit SeparationRule(World* pWorld, float desiredSeparation = 20., float weight = 1., bool isEnabled = false)
       : FlockingRule(pWorld, Color::Red, weight, isEnabled), desiredMinimalDistance(desiredSeparation) {}
 
   std::unique_ptr<FlockingRule> clone() override { return std::make_unique<SeparationRule>(*this); }
