@@ -4,6 +4,49 @@
 #include <climits>
 bool RecursiveBacktrackerExample::Step(World* w) {
   // todo: implement this
+
+  //Get the starting point as at the very corner of the maze
+  auto sideOver2 = w->GetSize() / 2;
+  if(stack.empty() && !visited[-sideOver2][-sideOver2]) {
+    Point2D startPoint = Point2D(-sideOver2, -sideOver2);
+    stack.push_back(startPoint);
+    return true;
+  }
+  //If the stack is not empty then the maze is not yet done
+  if(!stack.empty()) {
+    Point2D point = stack.back();
+    w->SetNodeColor(stack.back(), Color::Green);
+    std::vector<Point2D> neighbors = getVisitables(w, point);
+    visited[point.x][point.y] = true;
+    //If all of the neighbors have been visited then we pop back to the last cell with uncarved walls
+    if(neighbors.empty()) {
+      w->SetNodeColor(point, Color::Black);
+      stack.pop_back();
+    }
+    else {
+      //If the neighbors have not been visited then we choose a random one
+      int i = rand() % neighbors.size();
+
+      if(neighbors[i].x > point.x) {
+        w->SetEast(point, false);
+        w->SetWest(neighbors[i], false);
+      } else if(neighbors[i].x < point.x) {
+        w->SetEast(neighbors[i], false);
+        w->SetWest(point, false);
+      } else if(neighbors[i].y > point.y) {
+        w->SetNorth(neighbors[i], false);
+        w->SetSouth(point, false);
+      } else if(neighbors[i].y < point.y) {
+        w->SetNorth(point, false);
+        w->SetSouth(neighbors[i], false);
+      }
+
+      stack.push_back(neighbors[i]);
+      w->SetNodeColor(neighbors[i], Color::Green);
+    }
+    return true;
+  }
+
   return false;
 }
 
