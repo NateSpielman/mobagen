@@ -1,32 +1,12 @@
 #include "Agent.h"
-#include <unordered_set>
-#include <unordered_map>
-#include <queue>
 #include "World.h"
 using namespace std;
 
-struct ASNode {
-  Point2D point;
-  int accDistance;
-  int heuristicDistance;
-  //Operator < used to compare two nodes
-  //We want to know if the node we're comparing has a smaller value
-  bool operator<(const ASNode& rhs) const {
-    return (accDistance + heuristicDistance) > (rhs.accDistance + heuristicDistance);
-  }
-  //manhattan distance
-  int distanceTo(const Point2D &other) const {
-    return abs(point.x - other.x) + abs(point.y - other.y);
-  }
-};
-
 std::vector<Point2D> Agent::generatePath(World* w) {
   unordered_map<Point2D, Point2D> cameFrom;  // to build the flowfield and build the path
-  priority_queue<ASNode> frontier;                   // to store next ones to visit
-  unordered_set<Point2D> frontierSet;        // OPTIMIZATION to check faster if a point is in the queue
-  unordered_map<Point2D, bool> visited;      // use .at() to get data, if the element dont exist [] will give you wrong results
 
   auto sideSizeOver2 = w->getWorldSideSize() / 2;
+
   // bootstrap state
   auto catPos = w->getCat();
   frontier.push({catPos,0, distanceToBorder(catPos, sideSizeOver2)});
@@ -47,18 +27,48 @@ std::vector<Point2D> Agent::generatePath(World* w) {
     // getVisitableNeightbors(world, current) returns a vector of neighbors that are not visited, not cat, not block, not in the queue
     vector<Point2D> visitableNeighbors = getVisitableNeighbors(w, node.point);
     // iterate over the neighs:
-    // for every neighbor set the cameFrom
-    // enqueue the neighbors to frontier and frontierset
-    // do this up to find a visitable border and break the loop
+    for (auto neighbor : visitableNeighbors) {
+      // for every neighbor set the cameFrom
+      ASNode neighborNode;
+      neighborNode.point = neighbor;
+      neighborNode.heuristicDistance = distanceToBorder(neighborNode.point, sideSizeOver2);
+      neighborNode.accDistance = node.accDistance + 1;
+      cameFrom[neighborNode.point] = node.point;
+      // enqueue the neighbors to frontier and frontierset
+      frontier.push(neighborNode);
+      frontierSet.insert(neighborNode.point);
+      // do this up to find a visitable border and break the loop
+    }
   }
 
   // if the border is not infinity, build the path from border to the cat using the camefrom map
-  // if there isnt a reachable border, just return empty vector
+  vector<Point2D> path;
+  if(borderExit != Point2D::INFINITE) {
+    Point2D currentPoint = borderExit;
+    while(currentPoint != catPos) {
+      path.push_back(currentPoint);
+      currentPoint = cameFrom[currentPoint];
+    }
+    return path;
+  }
+  // if there isn't a reachable border, just return empty vector
   // if your vector is filled from the border to the cat, the first element is the catcher move, and the last element is the cat move
   return vector<Point2D>();
 }
 
-vector<Point2D> getVisitableNeighbors(World* w, const Point2D& p) {
+std::vector<Point2D> Agent::getVisitableNeighbors(World* w, const Point2D& p) {
   vector<Point2D> neighbors = World::neighbors(p);
+  vector<Point2D> visitableNeighbors = vector<Point2D>();
 
+  for(auto neighbor : neighbors) {
+    //Check that neighbor is not blocked or the cat position and is valid
+    if(!w->getContent(neighbor) && neighbor != w->getCat() && w->isValidPosition(neighbor)) {
+      //Push back the neighbor if they are not visited or in the queue
+      if(!visited.contains(neighbor) && !frontierSet.contains(neighbor)) {
+        visitableNeighbors.push_back(neighbor);
+      }
+    }
+  }
+
+  return visitableNeighbors;
 }
