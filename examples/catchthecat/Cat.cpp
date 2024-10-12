@@ -10,6 +10,7 @@ Point2D Cat::Move(World* world) {
     return path.back();
   }
 
+  //Return a random point if the path is empty
   auto rand = Random::Range(0, 5);
   auto pos = world->getCat();
   switch (rand) {
