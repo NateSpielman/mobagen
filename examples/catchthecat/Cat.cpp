@@ -3,6 +3,13 @@
 #include <stdexcept>
 
 Point2D Cat::Move(World* world) {
+  std::vector<Point2D> path = generatePath(world);
+
+  //Return element closest to the cat in the path
+  if(!path.empty()) {
+    return path.back();
+  }
+
   auto rand = Random::Range(0, 5);
   auto pos = world->getCat();
   switch (rand) {
